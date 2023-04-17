@@ -1,20 +1,75 @@
+import { useState } from 'react';
+import { StyleSheet, View, Button, FlatList } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+
+import GoalItem from './components/GoalItem';
+import GoalInput from './components/GoalInput';
 
 export default function App() {
+  const [courseGoals, setCourseGoals] = useState([]);
+  const [modalIsVisibale, setModalIsVisible] = useState(false);
+
+  const startAddGoalHandler = () => {
+    setModalIsVisible(true);
+  };
+  const endAddGoalHandler = () => {
+    setModalIsVisible(false);
+  };
+
+  const addGoalHandler = (enteredGoalText) => {
+    setCourseGoals((currentCourseGoals) =>
+      currentCourseGoals.concat({
+        text: enteredGoalText,
+        key: Math.random().toString(),
+      })
+    );
+    endAddGoalHandler();
+  };
+
+  const deleteGoal = (id) => {
+    setCourseGoals((currentCourseGoals) => {
+      return currentCourseGoals.filter((goal) => goal.key !== id);
+    });
+  };
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <>
+      <StatusBar style='light' />
+      <View style={styles.appContainer}>
+        <Button
+          title='Add New Goal'
+          color={'#a065ec'}
+          onPress={startAddGoalHandler}
+        />
+        <GoalInput
+          visible={modalIsVisibale}
+          onAddGoal={addGoalHandler}
+          onCancel={endAddGoalHandler}
+        />
+        <View style={styles.goalsContainer}>
+          <FlatList
+            data={courseGoals}
+            renderItem={(itemData) => (
+              <GoalItem
+                text={itemData.item.text}
+                onDelete={deleteGoal}
+                id={itemData.item.key}
+              />
+            )}
+          />
+        </View>
+      </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  appContainer: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingTop: 50,
+    paddingHorizontal: 16,
+  },
+  goalsContainer: {
+    flex: 5,
   },
 });
